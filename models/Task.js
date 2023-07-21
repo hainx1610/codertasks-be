@@ -11,6 +11,7 @@ const taskSchema = mongoose.Schema(
       required: true,
     },
     isDeleted: { type: Boolean, default: false, required: true },
+    assignedTo: { type: mongoose.SchemaTypes.ObjectId, ref: "User" },
   },
   {
     timestamps: true,

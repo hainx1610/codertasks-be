@@ -23,7 +23,7 @@ taskController.getTasks = async (req, res, next) => {
     const filter = { name, role };
     if (!name) delete filter.name;
     if (!role) delete filter.role;
-    const tasks = await Task.find(filter);
+    const tasks = await Task.find(filter).populate("assignedTo");
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
     next(error);
@@ -33,6 +33,7 @@ taskController.getTasks = async (req, res, next) => {
 taskController.getSingleTask = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(req.params);
     if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
     const filter = { _id: id };
     const singleTask = await Task.find(filter);
@@ -55,6 +56,24 @@ taskController.deleteTask = async (req, res, next) => {
     sendResponse(res, 200, true, deleted, null, "Delete task success");
   } catch (error) {
     next(error);
+  }
+};
+
+taskController.addReference = async (req, res, next) => {
+  const { targetId } = req.params;
+  const { ref } = req.body;
+  try {
+    let found = await Task.findOne({ _id: targetId });
+    //add check to control if task not found
+    console.log(found);
+    const refFound = await Task.findById(ref);
+    //add check to control if ref user not found
+    found.assignedTo = ref;
+    //mongoose query
+    found = await found.save();
+    sendResponse(res, 200, true, found, null, "Add assignee success");
+  } catch (err) {
+    next(err);
   }
 };
 

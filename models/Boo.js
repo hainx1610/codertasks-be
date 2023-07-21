@@ -5,7 +5,7 @@ const booSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    referenceTo: { type: mongoose.SchemaTypes.ObjectId, ref: "Foo" }, //one to one optional
+    assignedTo: { type: mongoose.SchemaTypes.ObjectId, ref: "Foo" }, //one to one optional
   },
   {
     timestamps: true,
