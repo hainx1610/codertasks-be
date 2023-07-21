@@ -4,7 +4,7 @@ const taskSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    role: {
+    status: {
       type: String,
       default: "pending",
       enum: ["pending", "working", "review", "done", "archive"],

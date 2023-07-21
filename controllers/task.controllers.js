@@ -19,10 +19,10 @@ taskController.createTask = async (req, res, next) => {
 taskController.getTasks = async (req, res, next) => {
   try {
     const name = req.query.name;
-    const role = req.query.role;
-    const filter = { name, role };
+    const status = req.query.status;
+    const filter = { name, status };
     if (!name) delete filter.name;
-    if (!role) delete filter.role;
+    if (!status) delete filter.status;
     const tasks = await Task.find(filter).populate("assignedTo");
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
