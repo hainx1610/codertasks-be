@@ -18,7 +18,8 @@ userController.createUser = async (req, res, next) => {
 
 userController.getUsers = async (req, res, next) => {
   try {
-    const filter = { name: req.query.name };
+    const name = req.query.name;
+    const filter = name ? { name } : {};
     const users = await User.find(filter);
     sendResponse(res, 200, true, users, null, "Get all users success");
   } catch (error) {

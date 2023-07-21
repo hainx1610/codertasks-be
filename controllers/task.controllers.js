@@ -18,7 +18,8 @@ taskController.createTask = async (req, res, next) => {
 
 taskController.getTasks = async (req, res, next) => {
   try {
-    const filter = { name: req.query.name };
+    const name = req.query.name;
+    const filter = name ? { name } : {};
     const tasks = await Task.find(filter);
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
