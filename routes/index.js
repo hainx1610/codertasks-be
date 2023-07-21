@@ -31,4 +31,7 @@ router.use("/boo", booRouter);
 const userRouter = require("./user.api.js");
 router.use("/users", userRouter);
 
+const taskRouter = require("./task.api.js");
+router.use("/tasks", taskRouter);
+
 module.exports = router;
