@@ -19,7 +19,10 @@ taskController.createTask = async (req, res, next) => {
 taskController.getTasks = async (req, res, next) => {
   try {
     const name = req.query.name;
-    const filter = name ? { name } : {};
+    const role = req.query.role;
+    const filter = { name, role };
+    if (!name) delete filter.name;
+    if (!role) delete filter.role;
     const tasks = await Task.find(filter);
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
