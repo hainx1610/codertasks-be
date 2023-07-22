@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { AppError, sendResponse } = require("../helpers/utils");
 const Task = require("../models/Task");
+const User = require("../models/User");
 
 const taskController = {};
 
@@ -9,6 +10,7 @@ taskController.createTask = async (req, res, next) => {
     const info = req.body;
     if (!info || Object.keys(info).length === 0)
       throw new AppError(400, "Bad request", "Create task error");
+    // if req.body.assignedTo ... (also, valid mongo Id?)
     const created = await Task.create(info);
     sendResponse(res, 200, true, created, null, "Create task success");
   } catch (error) {
@@ -23,7 +25,9 @@ taskController.getTasks = async (req, res, next) => {
     const filter = { name, status };
     if (!name) delete filter.name;
     if (!status) delete filter.status;
-    const tasks = await Task.find(filter).populate("assignedTo");
+    const tasks = await Task.find(filter)
+      .sort({ createdAt: -1 })
+      .populate("assignedTo", "name");
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
     next(error);
@@ -36,7 +40,7 @@ taskController.getSingleTask = async (req, res, next) => {
     console.log(req.params);
     if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
     const filter = { _id: id };
-    const singleTask = await Task.find(filter).populate("assignedTo");
+    const singleTask = await Task.find(filter).populate("assignedTo", "name");
     sendResponse(res, 200, true, singleTask, null, "Get single task success");
   } catch (error) {
     next(error);
@@ -63,15 +67,18 @@ taskController.addReference = async (req, res, next) => {
   const { targetId } = req.params;
   const { ref } = req.body;
   try {
-    let found = await Task.findOne({ _id: targetId });
+    let taskFound = await Task.findOne({ _id: targetId });
     //add check to control if task not found
-    console.log(found);
-    const refFound = await Task.findById(ref);
+    // console.log(taskFound);
+    let userFound = await User.findById(ref);
+    // console.log(taskFound, userFound);
     //add check to control if ref user not found
-    found.assignedTo = ref;
+    taskFound.assignedTo = ref;
     //mongoose query
-    found = await found.save();
-    sendResponse(res, 200, true, found, null, "Add assignee success");
+    taskFound = await taskFound.save();
+    userFound.responsibleFor.push(taskFound);
+    userFound = await userFound.save();
+    sendResponse(res, 200, true, taskFound, null, "Add assignee success");
   } catch (err) {
     next(err);
   }
