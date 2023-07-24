@@ -5,6 +5,7 @@ const {
   getSingleTask,
   deleteTask,
   addReference,
+  editTask,
 } = require("../controllers/task.controllers");
 const router = express.Router();
 
@@ -43,6 +44,6 @@ router.delete("/:id", deleteTask);
  * @description update reference for a task
  * @access private
  */
-router.put("/:targetId", addReference);
+router.put("/:targetId", editTask);
 
 module.exports = router;

@@ -10,8 +10,18 @@ taskController.createTask = async (req, res, next) => {
     const info = req.body;
     if (!info || Object.keys(info).length === 0)
       throw new AppError(400, "Bad request", "Create task error");
-    // if req.body.assignedTo ... (also, valid mongo Id?)
+    const assigneeId = req.body.assignedTo;
+    if (assigneeId && !mongoose.isValidObjectId(assigneeId))
+      throw new Error("Invalid user ID");
+
     const created = await Task.create(info);
+
+    if (assigneeId) {
+      let assignee = await User.findById(assigneeId);
+      assignee.responsibleFor.push(created._id);
+      assignee = await assignee.save();
+    }
+
     sendResponse(res, 200, true, created, null, "Create task success");
   } catch (error) {
     next(error);
@@ -65,15 +75,15 @@ taskController.deleteTask = async (req, res, next) => {
 
 taskController.addReference = async (req, res, next) => {
   const { targetId } = req.params;
-  const { ref } = req.body;
+  const { assigneeId } = req.body;
   try {
     let taskFound = await Task.findOne({ _id: targetId });
     //add check to control if task not found
     // console.log(taskFound);
-    let userFound = await User.findById(ref);
+    let userFound = await User.findById(assigneeId);
     // console.log(taskFound, userFound);
     //add check to control if ref user not found
-    taskFound.assignedTo = ref;
+    taskFound.assignedTo = assigneeId;
     //mongoose query
     taskFound = await taskFound.save();
     userFound.responsibleFor.push(taskFound);
@@ -81,6 +91,36 @@ taskController.addReference = async (req, res, next) => {
     sendResponse(res, 200, true, taskFound, null, "Add assignee success");
   } catch (err) {
     next(err);
+  }
+};
+
+taskController.editTask = async (req, res, next) => {
+  const { targetId } = req.params;
+  const assigneeId = req.body.assignedTo;
+  try {
+    if (!mongoose.isValidObjectId(targetId)) throw new Error("Invalid ID");
+    if (assigneeId && !mongoose.isValidObjectId(assigneeId))
+      throw new Error("Invalid user ID");
+
+    const taskFound = await Task.findByIdAndUpdate(
+      targetId,
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+    if (!taskFound) throw new Error("Task not found");
+
+    if (assigneeId) {
+      let assignee = await User.findById(assigneeId);
+      if (assignee.responsibleFor.includes(taskFound._id))
+        throw new Error("Task already assigned to this user");
+      assignee.responsibleFor.push(taskFound._id);
+      assignee = await assignee.save();
+      // remove task from prev user responsibleFor???
+    }
+
+    sendResponse(res, 200, true, taskFound, null, "Update task success");
+  } catch (error) {
+    next(error);
   }
 };
 
