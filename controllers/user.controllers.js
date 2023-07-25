@@ -23,10 +23,9 @@ userController.getUsers = async (req, res, next) => {
     const filter = { name, role };
     if (!name) delete filter.name;
     if (!role) delete filter.role;
-    const users = await User.find(filter).populate(
-      "responsibleFor",
-      "name description status"
-    );
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .populate("responsibleFor", "name description status");
     sendResponse(res, 200, true, users, null, "Get all users success");
   } catch (error) {
     next(error);
@@ -39,10 +38,9 @@ userController.getSingleUser = async (req, res, next) => {
     if (!mongoose.isValidObjectId(id))
       throw new AppError(400, "Bad Request", "Invalid ID");
     const filter = { _id: id };
-    const singleUser = await User.find(filter).populate(
-      "responsibleFor",
-      "name description status"
-    );
+    const singleUser = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .populate("responsibleFor", "name description status");
     sendResponse(res, 200, true, singleUser, null, "Get single user success");
   } catch (error) {
     next(error);
