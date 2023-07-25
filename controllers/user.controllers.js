@@ -36,7 +36,8 @@ userController.getUsers = async (req, res, next) => {
 userController.getSingleUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
+    if (!mongoose.isValidObjectId(id))
+      throw new AppError(400, "Bad Request", "Invalid ID");
     const filter = { _id: id };
     const singleUser = await User.find(filter).populate(
       "responsibleFor",
@@ -51,13 +52,14 @@ userController.getSingleUser = async (req, res, next) => {
 userController.deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
+    if (!mongoose.isValidObjectId(id))
+      throw new AppError(400, "Bad Request", "Invalid ID");
     const deleted = await User.findByIdAndUpdate(
       id,
       { isDeleted: true },
       { new: true, runValidators: true }
     );
-    if (!deleted) throw new Error("User not found!");
+    if (!deleted) throw new AppError(400, "Bad Request", "User not found!");
     sendResponse(res, 200, true, deleted, null, "Delete user success");
   } catch (error) {
     next(error);
