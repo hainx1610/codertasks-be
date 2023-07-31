@@ -7,6 +7,7 @@ const {
   addReference,
   editTask,
 } = require("../controllers/task.controllers");
+const { taskValidator } = require("../middleware/validators");
 const router = express.Router();
 
 /**
@@ -15,7 +16,7 @@ const router = express.Router();
  * @access private, manager
  * @requiredBody: name
  */
-router.post("/", createTask);
+router.post("/", taskValidator, createTask);
 
 /**
  * @route GET api/tasks

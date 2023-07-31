@@ -110,10 +110,10 @@ taskController.editTask = async (req, res, next) => {
     const prevAssigneeId = taskFound.assignedTo
       ? taskFound.assignedTo.toString()
       : undefined;
-    // console.log(prevAssigneeId);
-    if (prevAssigneeId === assigneeId)
+    if (assigneeId && prevAssigneeId === assigneeId)
       throw new Error("Task already assigned to this user");
-    taskFound.assignedTo = assigneeId;
+    Object.assign(taskFound, { ...req.body });
+    console.log(taskFound, "hmm?");
 
     taskFound = await taskFound.save();
 
