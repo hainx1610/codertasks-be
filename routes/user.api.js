@@ -5,6 +5,7 @@ const {
   getSingleUser,
   deleteUser,
 } = require("../controllers/user.controllers");
+const { userValidator } = require("../middleware/validators");
 const router = express.Router();
 
 /**
@@ -13,7 +14,7 @@ const router = express.Router();
  * @access private, manager
  * @requiredBody: name
  */
-router.post("/", createUser);
+router.post("/", userValidator, createUser);
 
 /**
  * @route GET api/users
