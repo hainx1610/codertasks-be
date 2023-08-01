@@ -7,7 +7,11 @@ const {
   addReference,
   editTask,
 } = require("../controllers/task.controllers");
-const { taskValidator } = require("../middleware/validators");
+const {
+  taskValidator,
+  taskEditValidator,
+  reqIdValidator,
+} = require("../middleware/validators");
 const router = express.Router();
 
 /**
@@ -31,20 +35,20 @@ router.get("/", getTasks);
  * @description Get task by id
  * @access public
  */
-router.get("/:id", getSingleTask);
+router.get("/:id", reqIdValidator, getSingleTask);
 
 /**
  * @route DELETE api/tasks/:id
  * @description Delete task by id
  * @access private
  */
-router.delete("/:id", deleteTask);
+router.delete("/:id", reqIdValidator, deleteTask);
 
 /**
  * @route PUT api/tasks/:targetId
  * @description update reference for a task
  * @access private
  */
-router.put("/:targetId", editTask);
+router.put("/:id", reqIdValidator, taskEditValidator, editTask);
 
 module.exports = router;

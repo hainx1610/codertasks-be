@@ -8,7 +8,7 @@ const taskSchema = mongoose.Schema(
       type: String,
       default: "pending",
       enum: ["pending", "working", "review", "done", "archive"],
-      required: true,
+      //   required: true,
     },
     isDeleted: { type: Boolean, default: false, required: true },
     assignedTo: { type: mongoose.SchemaTypes.ObjectId, ref: "User" },

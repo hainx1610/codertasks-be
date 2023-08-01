@@ -5,7 +5,7 @@ const {
   getSingleUser,
   deleteUser,
 } = require("../controllers/user.controllers");
-const { userValidator } = require("../middleware/validators");
+const { userValidator, reqIdValidator } = require("../middleware/validators");
 const router = express.Router();
 
 /**
@@ -29,13 +29,13 @@ router.get("/", getUsers);
  * @description Get user by id
  * @access public
  */
-router.get("/:id", getSingleUser);
+router.get("/:id", reqIdValidator, getSingleUser);
 
 /**
  * @route DELETE api/users/:id
  * @description Delete user by id
  * @access private
  */
-router.delete("/:id", deleteUser);
+router.delete("/:id", reqIdValidator, deleteUser);
 
 module.exports = router;

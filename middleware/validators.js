@@ -1,4 +1,4 @@
-const { checkSchema, validationResult } = require("express-validator");
+const { checkSchema, validationResult, param } = require("express-validator");
 
 const userInputSchema = {
   name: {
@@ -23,11 +23,24 @@ const taskInputSchema = {
     isString: { errorMessage: "Task description must be a string" },
   },
   status: {
+    // skip validation if no status in body
+    optional: true,
     isIn: {
       options: [["pending", "working", "review", "done", "archive"]],
       errorMessage: "Invalid status",
     },
   },
+
+  assignedTo: {
+    optional: true,
+    isMongoId: { errorMessage: "Invalid MongoId" },
+  },
+};
+
+const taskEditSchema = {
+  ...taskInputSchema,
+  name: { ...taskInputSchema.name, optional: true },
+  description: { ...taskInputSchema.description, optional: true },
 };
 
 const userValidator = [
@@ -50,4 +63,29 @@ const taskValidator = [
   },
 ];
 
-module.exports = { userValidator, taskValidator };
+const taskEditValidator = [
+  checkSchema(taskEditSchema),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({ errors: errors.array() });
+    next();
+  },
+];
+
+const reqIdValidator = [
+  param("id").isMongoId().withMessage("Invalid ID bro!"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({ errors: errors.array() });
+    next();
+  },
+];
+
+module.exports = {
+  userValidator,
+  taskValidator,
+  taskEditValidator,
+  reqIdValidator,
+};

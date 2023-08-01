@@ -97,7 +97,7 @@ taskController.addReference = async (req, res, next) => {
 };
 
 taskController.editTask = async (req, res, next) => {
-  const { targetId } = req.params;
+  const targetId = req.params.id;
   const assigneeId = req.body.assignedTo;
   try {
     if (!mongoose.isValidObjectId(targetId))
