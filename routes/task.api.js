@@ -45,8 +45,8 @@ router.get("/:id", reqIdValidator, getSingleTask);
 router.delete("/:id", reqIdValidator, deleteTask);
 
 /**
- * @route PUT api/tasks/:targetId
- * @description update reference for a task
+ * @route PUT api/tasks/:id
+ * @description update a task
  * @access private
  */
 router.put("/:id", reqIdValidator, taskEditValidator, editTask);
