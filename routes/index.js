@@ -22,12 +22,6 @@ router.get("/coder_tasks/:test", async (req, res, next) => {
   }
 });
 
-const fooRouter = require("./foo.api.js");
-router.use("/foo", fooRouter);
-
-const booRouter = require("./boo.api.js");
-router.use("/boo", booRouter);
-
 const userRouter = require("./user.api.js");
 router.use("/users", userRouter);
 
