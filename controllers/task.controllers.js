@@ -11,13 +11,16 @@ taskController.createTask = async (req, res, next) => {
     if (!info || Object.keys(info).length === 0)
       throw new AppError(400, "Bad request", "Create task error");
     const assigneeId = req.body.assignedTo;
-    if (assigneeId && !mongoose.isValidObjectId(assigneeId))
-      throw new AppError(400, "Bad request", "Invalid user ID");
+    // if (assigneeId && !mongoose.isValidObjectId(assigneeId))
+    //   throw new AppError(400, "Bad request", "Invalid user ID");
 
     const created = await Task.create(info);
 
     if (assigneeId) {
       let assignee = await User.findById(assigneeId);
+      if (!assignee)
+        throw new AppError(400, "Bad request", "Assignee not found!");
+
       assignee.responsibleFor.push(created._id);
       assignee = await assignee.save();
     }
@@ -38,6 +41,8 @@ taskController.getTasks = async (req, res, next) => {
     const tasks = await Task.find(filter)
       .sort({ createdAt: -1 })
       .populate("assignedTo", "name");
+    if (!tasks) throw new AppError(400, "Bad request", "Tasks not found!");
+
     sendResponse(res, 200, true, tasks, null, "Get all tasks success");
   } catch (error) {
     next(error);
@@ -48,10 +53,12 @@ taskController.getSingleTask = async (req, res, next) => {
   try {
     const { id } = req.params;
     console.log(req.params);
-    if (!mongoose.isValidObjectId(id))
-      throw new AppError(400, "Bad request", "Invalid ID");
+    // if (!mongoose.isValidObjectId(id))
+    //   throw new AppError(400, "Bad request", "Invalid ID");
     const filter = { _id: id };
     const singleTask = await Task.find(filter).populate("assignedTo", "name");
+    if (!singleTask) throw new AppError(400, "Bad request", "Task not found!");
+
     sendResponse(res, 200, true, singleTask, null, "Get single task success");
   } catch (error) {
     next(error);
@@ -61,8 +68,8 @@ taskController.getSingleTask = async (req, res, next) => {
 taskController.deleteTask = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id))
-      throw new AppError(400, "Bad request", "Invalid ID");
+    // if (!mongoose.isValidObjectId(id))
+    //   throw new AppError(400, "Bad request", "Invalid ID");
     const deleted = await Task.findByIdAndUpdate(
       id,
       { isDeleted: true },
@@ -75,35 +82,35 @@ taskController.deleteTask = async (req, res, next) => {
   }
 };
 
-taskController.addReference = async (req, res, next) => {
-  const { targetId } = req.params;
-  const { assigneeId } = req.body;
-  try {
-    let taskFound = await Task.findOne({ _id: targetId });
-    //add check to control if task not found
-    // console.log(taskFound);
-    let userFound = await User.findById(assigneeId);
-    // console.log(taskFound, userFound);
-    //add check to control if ref user not found
-    taskFound.assignedTo = assigneeId;
-    //mongoose query
-    taskFound = await taskFound.save();
-    userFound.responsibleFor.push(taskFound);
-    userFound = await userFound.save();
-    sendResponse(res, 200, true, taskFound, null, "Add assignee success");
-  } catch (err) {
-    next(err);
-  }
-};
+// taskController.addReference = async (req, res, next) => {
+//   const { targetId } = req.params;
+//   const { assigneeId } = req.body;
+//   try {
+//     let taskFound = await Task.findOne({ _id: targetId });
+//     //add check to control if task not found
+//     // console.log(taskFound);
+//     let userFound = await User.findById(assigneeId);
+//     // console.log(taskFound, userFound);
+//     //add check to control if ref user not found
+//     taskFound.assignedTo = assigneeId;
+//     //mongoose query
+//     taskFound = await taskFound.save();
+//     userFound.responsibleFor.push(taskFound);
+//     userFound = await userFound.save();
+//     sendResponse(res, 200, true, taskFound, null, "Add assignee success");
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 taskController.editTask = async (req, res, next) => {
   const targetId = req.params.id;
   const assigneeId = req.body.assignedTo;
   try {
-    if (!mongoose.isValidObjectId(targetId))
-      throw new AppError(400, "Bad request", "Invalid ID");
-    if (assigneeId && !mongoose.isValidObjectId(assigneeId))
-      throw new AppError(400, "Bad request", "Invalid user ID");
+    // if (!mongoose.isValidObjectId(targetId))
+    //   throw new AppError(400, "Bad request", "Invalid ID");
+    // if (assigneeId && !mongoose.isValidObjectId(assigneeId))
+    //   throw new AppError(400, "Bad request", "Invalid user ID");
 
     let taskFound = await Task.findById(targetId);
     if (!taskFound) throw new AppError(400, "Bad request", "Task not found");
@@ -121,6 +128,8 @@ taskController.editTask = async (req, res, next) => {
       // remove task from prev assignee responisbleFor array
       if (prevAssigneeId) {
         let prevAssignee = await User.findById(prevAssigneeId);
+        if (!prevAssignee)
+          throw new AppError(400, "Bad request", "Previous assignee not found");
         prevAssignee.responsibleFor = prevAssignee.responsibleFor.filter(
           (task) => task.toString() !== taskFound._id.toString()
         );
@@ -129,6 +138,9 @@ taskController.editTask = async (req, res, next) => {
 
       //   push task to new assignee responsibleFor array
       let assignee = await User.findById(assigneeId);
+      if (!assignee)
+        throw new AppError(400, "Bad request", "Assignee not found");
+
       assignee.responsibleFor.push(taskFound._id);
       assignee = await assignee.save();
     }

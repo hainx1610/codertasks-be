@@ -7,8 +7,8 @@ const userController = {};
 userController.createUser = async (req, res, next) => {
   try {
     const info = req.body;
-    if (!info || Object.keys(info).length === 0)
-      throw new AppError(400, "Bad request", "Create user error");
+    // if (!info || Object.keys(info).length === 0)
+    //   throw new AppError(400, "Bad request", "Create user error");
     const created = await User.create(info);
     sendResponse(res, 200, true, created, null, "Create user success");
   } catch (error) {
@@ -26,6 +26,7 @@ userController.getUsers = async (req, res, next) => {
     const users = await User.find(filter)
       .sort({ createdAt: -1 })
       .populate("responsibleFor", "name description status");
+    if (!deleted) throw new AppError(400, "Bad Request", "Users not found!");
     sendResponse(res, 200, true, users, null, "Get all users success");
   } catch (error) {
     next(error);
@@ -35,12 +36,13 @@ userController.getUsers = async (req, res, next) => {
 userController.getSingleUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id))
-      throw new AppError(400, "Bad Request", "Invalid ID");
+    // if (!mongoose.isValidObjectId(id))
+    //   throw new AppError(400, "Bad Request", "Invalid ID");
     const filter = { _id: id };
     const singleUser = await User.find(filter)
       .sort({ createdAt: -1 })
       .populate("responsibleFor", "name description status");
+    if (!deleted) throw new AppError(400, "Bad Request", "User not found!");
     sendResponse(res, 200, true, singleUser, null, "Get single user success");
   } catch (error) {
     next(error);
@@ -50,8 +52,8 @@ userController.getSingleUser = async (req, res, next) => {
 userController.deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id))
-      throw new AppError(400, "Bad Request", "Invalid ID");
+    // if (!mongoose.isValidObjectId(id))
+    //   throw new AppError(400, "Bad Request", "Invalid ID");
     const deleted = await User.findByIdAndUpdate(
       id,
       { isDeleted: true },

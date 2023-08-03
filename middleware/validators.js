@@ -74,7 +74,7 @@ const taskEditValidator = [
 ];
 
 const reqIdValidator = [
-  param("id").isMongoId().withMessage("Invalid ID bro!"),
+  param("id").isMongoId().withMessage("Invalid ID!"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty())
