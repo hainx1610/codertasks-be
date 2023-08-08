@@ -17,6 +17,14 @@ const taskSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+taskSchema.pre("find", function () {
+  this.where({ isDeleted: false });
+});
+taskSchema.pre("findOne", function () {
+  this.where({ isDeleted: false });
+});
+
 //Create and export model
 
 const Task = mongoose.model("Task", taskSchema);

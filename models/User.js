@@ -16,6 +16,14 @@ const userSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.pre("find", function () {
+  this.where({ isDeleted: false });
+});
+userSchema.pre("findOne", function () {
+  this.where({ isDeleted: false });
+});
+
 //Create and export model
 
 const User = mongoose.model("User", userSchema);
