@@ -26,7 +26,7 @@ userController.getUsers = async (req, res, next) => {
     const users = await User.find(filter)
       .sort({ createdAt: -1 })
       .populate("responsibleFor", "name description status");
-    if (!deleted) throw new AppError(400, "Bad Request", "Users not found!");
+    if (!users) throw new AppError(400, "Bad Request", "Users not found!");
     sendResponse(res, 200, true, users, null, "Get all users success");
   } catch (error) {
     next(error);
@@ -42,7 +42,7 @@ userController.getSingleUser = async (req, res, next) => {
     const singleUser = await User.find(filter)
       .sort({ createdAt: -1 })
       .populate("responsibleFor", "name description status");
-    if (!deleted) throw new AppError(400, "Bad Request", "User not found!");
+    if (!singleUser) throw new AppError(400, "Bad Request", "User not found!");
     sendResponse(res, 200, true, singleUser, null, "Get single user success");
   } catch (error) {
     next(error);
