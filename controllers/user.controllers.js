@@ -6,6 +6,11 @@ const userController = {};
 
 userController.createUser = async (req, res, next) => {
   try {
+    if (req.body.name) {
+      const nameFound = await User.findOne({ name: req.body.name });
+      if (nameFound)
+        throw new AppError(400, "Bad Request", "User already exists!");
+    }
     const info = req.body;
     // if (!info || Object.keys(info).length === 0)
     //   throw new AppError(400, "Bad request", "Create user error");
