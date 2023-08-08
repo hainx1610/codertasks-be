@@ -126,7 +126,11 @@ taskController.editTask = async (req, res, next) => {
       ? taskFound.assignedTo.toString()
       : undefined;
     if (assigneeId && prevAssigneeId === assigneeId)
-      throw new Error("Task already assigned to this user");
+      throw new AppError(
+        400,
+        "Bad Request",
+        "Task already assigned to this user"
+      );
     Object.assign(taskFound, { ...req.body });
 
     taskFound = await taskFound.save();
