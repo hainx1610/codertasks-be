@@ -114,13 +114,20 @@ taskController.editTask = async (req, res, next) => {
 
     let taskFound = await Task.findById(targetId);
     if (!taskFound) throw new AppError(400, "Bad request", "Task not found");
+
+    if (taskFound.status === "done" && req.body.status !== "archive")
+      throw new AppError(
+        400,
+        "Bad Request",
+        "Completed tasks can only be archived"
+      );
+
     const prevAssigneeId = taskFound.assignedTo
       ? taskFound.assignedTo.toString()
       : undefined;
     if (assigneeId && prevAssigneeId === assigneeId)
       throw new Error("Task already assigned to this user");
     Object.assign(taskFound, { ...req.body });
-    console.log(taskFound, "hmm?");
 
     taskFound = await taskFound.save();
 
