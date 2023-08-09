@@ -82,27 +82,6 @@ taskController.deleteTask = async (req, res, next) => {
   }
 };
 
-// taskController.addReference = async (req, res, next) => {
-//   const { targetId } = req.params;
-//   const { assigneeId } = req.body;
-//   try {
-//     let taskFound = await Task.findOne({ _id: targetId });
-//     //add check to control if task not found
-//     // console.log(taskFound);
-//     let userFound = await User.findById(assigneeId);
-//     // console.log(taskFound, userFound);
-//     //add check to control if ref user not found
-//     taskFound.assignedTo = assigneeId;
-//     //mongoose query
-//     taskFound = await taskFound.save();
-//     userFound.responsibleFor.push(taskFound);
-//     userFound = await userFound.save();
-//     sendResponse(res, 200, true, taskFound, null, "Add assignee success");
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
 taskController.editTask = async (req, res, next) => {
   const targetId = req.params.id;
   const assigneeId = req.body.assignedTo;
